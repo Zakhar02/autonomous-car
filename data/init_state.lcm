@@ -1,0 +1,14 @@
+package car;
+
+struct init_state
+{
+    double xi;
+    double yi;
+    double xf;
+    double yf;
+    double thetai;
+    double thetaf;
+    double l;
+    double k;
+    boolean planning;
+}

@@ -1,0 +1,8 @@
+package car;
+
+struct feedback
+{
+    double x;
+    double y;
+    double theta;
+}

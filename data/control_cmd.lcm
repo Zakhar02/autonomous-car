@@ -1,0 +1,7 @@
+package car;
+
+struct control_cmd
+{
+    double v;
+    double phi;
+}

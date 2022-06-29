@@ -1,0 +1,6 @@
+package car;
+
+struct terminate
+{
+    boolean flag;
+}
