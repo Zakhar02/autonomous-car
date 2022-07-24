@@ -30,7 +30,9 @@ def init_handler(channel, data):
     globals()['theta'] = msg.thetai
     globals()['start'] = True
     globals()['planning'] = msg.planning
-
+    if msg.planning is False:
+        globals()['x'] -= msg.xf
+        globals()['y'] -= msg.yf
 
 def control_handler(channel, data):
     msg = feedback.decode(data)

@@ -23,7 +23,10 @@ def init_handler(channel, data):
     globals()['y'] = msg.yi
     globals()['theta'] = msg.thetai
     globals()['l'] = msg.l
-    print("INIT")
+    if msg.planning is False:
+        globals()['x'] -= msg.xf
+        globals()['y'] -= msg.yf
+    print("INIT PLANT")
 
 
 def control_handler(channel, data):
@@ -40,6 +43,7 @@ def system(state, t, v, phi):
 
 def terminate_handler(channel, data):
     globals()['stop'] = True
+    print("TERMINATE PLANT")
 
 
 lc = lcm.LCM()
