@@ -32,7 +32,9 @@ def init_handler(channel, data):
     betay = k*np.sin(thetai) + 3*yi
     globals()['x'] = trajectory(xi, xf, alphax, betax)
     globals()['y'] = trajectory(yi, yf, alphay, betay)
-    globals()['start'] = True
+    if msg.planning is True:
+        globals()['start'] = True
+    print("INIT PLANNING")
 
 def terminate_handler(channel, data):
     globals()['stop'] = True
@@ -46,15 +48,16 @@ dx = x(t).diff(t)
 dy = y(t).diff(t)
 ddx = dx.diff(t)
 ddy = dy.diff(t)
-thetad = atan2(dy, dx)
-vd = sqrt(dx**2+dy**2)
-print(vd)
-dthetad = (ddy*dx-ddx*dy)/(dx**2+dy**2)
+thetad = lambdify(t, atan2(dy, dx))
+vd = lambdify(t, sqrt(dx**2+dy**2))
+dthetad = lambdify(t, (ddy*dx-ddx*dy)/(dx**2+dy**2))
 timeout = 0
-while not stop:
+while not stop and timestamp < 1:
     rfds, _, _ = select.select([lc.fileno()], [], [], timeout)
     if rfds:
         lc.handle()
+    if not start:
+        continue
     msg = planning_cmd()
     msg.timestamp = timestamp
     msg.xd = x(timestamp)
@@ -65,3 +68,4 @@ while not stop:
     lc.publish("PLANNING", msg.encode())
     timestamp += 0.02
     sleep(0.02)
+lc.publish("TERMINATE", terminate().encode())

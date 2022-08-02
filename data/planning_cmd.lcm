@@ -2,7 +2,7 @@ package car;
 
 struct planning_cmd
 {
-    int64_t timestamp;
+    double timestamp;
     double xd;
     double yd;
     double thetad;
