@@ -1,8 +1,8 @@
 # created by virtualenv automatically
-./bin/*
-./include/*
-./lcm-1.4.0/*
-./lib/*
-./lib64/*
-./pyenv.cfg/*
+./bin
+./include
+./lcm-1.4.0
+./lib
+./lib64
+./pyenv.cfg
 *.pyc
