@@ -12,12 +12,12 @@ import struct
 class planning_cmd(object):
     __slots__ = ["timestamp", "xd", "yd", "thetad", "vd", "dthetad"]
 
-    __typenames__ = ["int64_t", "double", "double", "double", "double", "double"]
+    __typenames__ = ["double", "double", "double", "double", "double", "double"]
 
     __dimensions__ = [None, None, None, None, None, None]
 
     def __init__(self):
-        self.timestamp = 0
+        self.timestamp = 0.0
         self.xd = 0.0
         self.yd = 0.0
         self.thetad = 0.0
@@ -31,7 +31,7 @@ class planning_cmd(object):
         return buf.getvalue()
 
     def _encode_one(self, buf):
-        buf.write(struct.pack(">qddddd", self.timestamp, self.xd, self.yd, self.thetad, self.vd, self.dthetad))
+        buf.write(struct.pack(">dddddd", self.timestamp, self.xd, self.yd, self.thetad, self.vd, self.dthetad))
 
     def decode(data):
         if hasattr(data, 'read'):
@@ -45,14 +45,14 @@ class planning_cmd(object):
 
     def _decode_one(buf):
         self = planning_cmd()
-        self.timestamp, self.xd, self.yd, self.thetad, self.vd, self.dthetad = struct.unpack(">qddddd", buf.read(48))
+        self.timestamp, self.xd, self.yd, self.thetad, self.vd, self.dthetad = struct.unpack(">dddddd", buf.read(48))
         return self
     _decode_one = staticmethod(_decode_one)
 
     _hash = None
     def _get_hash_recursive(parents):
         if planning_cmd in parents: return 0
-        tmphash = (0x83684bef5e2b1a3f) & 0xffffffffffffffff
+        tmphash = (0xf8e82a41549baa42) & 0xffffffffffffffff
         tmphash  = (((tmphash<<1)&0xffffffffffffffff) + (tmphash>>63)) & 0xffffffffffffffff
         return tmphash
     _get_hash_recursive = staticmethod(_get_hash_recursive)

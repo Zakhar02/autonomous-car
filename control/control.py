@@ -10,7 +10,6 @@ y = None
 theta = None
 l = None
 stop = False
-start = False
 planning = None
 xd = None
 yd = None
@@ -20,17 +19,24 @@ dthetad = None
 k1 = 1
 k2 = 5
 zeta = 1
-a = 10
+# a = 10
+a = 4
+xf = None
+yf = None
 
 def init_handler(channel, data):
     msg = init_state.decode(data)
     globals()['l'] = msg.l
     globals()['x'] = msg.xi
     globals()['y'] = msg.yi
+    globals()['xf'] = msg.xf
+    globals()['yf'] = msg.yf
     globals()['theta'] = msg.thetai
-    globals()['start'] = True
     globals()['planning'] = msg.planning
-
+    if msg.planning is False:
+        globals()['x'] -= msg.xf
+        globals()['y'] -= msg.yf
+    print("INIT CONTROL")
 
 def control_handler(channel, data):
     msg = feedback.decode(data)
@@ -69,6 +75,8 @@ while not stop:
         msg.v = -k1*(x*np.cos(theta) + y*np.sin(theta))
         msg.phi = np.arctan2(k2*l*(np.arctan2(y, x) - theta + np.pi), msg.v)
     else:
+        if xd is None:
+            continue
         E = np.array([[np.cos(theta), np.sin(theta), 0], [-np.sin(theta), np.cos(theta), 0], [0, 0, 1]])
         qd = np.array([[xd - x, yd - y, thetad - theta]]).T
         e = (E@qd).T[0]
