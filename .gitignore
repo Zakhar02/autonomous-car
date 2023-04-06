@@ -4,5 +4,6 @@
 /lcm-1.4.0
 /lib
 /lib64
-/pyenv.cfg
+pyvenv.cfg
 *.pyc
+/share/*
