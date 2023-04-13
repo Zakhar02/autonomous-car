@@ -1,13 +1,15 @@
 from control.MPC import FMPC
 from planning.DiffFlatness import DifferentialFlatness
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
+from matplotlib.animation import FuncAnimation
 import numpy as np
 import time
+from scipy.interpolate import CubicSpline
 
 
-def plot_car(i, w, l, xs, us, state):
+def plot_car(i, w, l, xs, us, state, n):
     plt.cla()
+    i *= n
     x, y, theta = xs[i]
     v, phi = us[i]
     R = np.array([[np.cos(theta), np.sin(theta)],
@@ -40,26 +42,30 @@ def main():
     state, _ = df.build_trajectory(state_initial, state_final, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
-    Q = 15*np.eye(3)
+    Q = 60*np.eye(3)
     R = np.array([[1, 0], [0, 10]])
-    P = 100*np.eye(3)
+    P = 120*np.eye(3)
     xs = np.array(state_initial).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     nmpc = FMPC(H, l)
     tf = 10
     dt = tf/N
+    n = 5
     time1 = time.time()
     for i in range(N):
         _, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
                              tf*H/N, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
-        us = np.vstack((us, u[:, 0].T))
-        x_next = nmpc.rk4(xs[-1], us[-1], dt)
-        xs = np.vstack((xs, x_next.T))
+        vi, phii = [CubicSpline([0, dt], [us[-1][i], u.full()[i, 0]])
+                    for i in range(u.shape[0])]
+        for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
+            us = np.vstack((us, u_))
+            x_next = nmpc.rk4(xs[-1], us[-1], dt/n)
+            xs = np.vstack((xs, x_next.T))
     time1 -= time.time()
     print(f"MPC calculation time is {-time1} seconds")
     fig = plt.figure()
     animation = FuncAnimation(
-        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state))
+        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state, n))
     animation.save('mpc.gif', writer='imagemagick', fps=60)
     # plt.show()
 
