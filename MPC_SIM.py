@@ -31,7 +31,7 @@ def plot_car(i, w, l, xs, us, state):
 
 
 def main():
-    H = 10
+    H = 5
     N = 100
     l = 1
     state_initial = [0, 0, 0]
@@ -40,12 +40,11 @@ def main():
     state, _ = df.build_trajectory(state_initial, state_final, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
-    Q = 10*np.eye(3)
+    Q = 15*np.eye(3)
     R = np.array([[1, 0], [0, 10]])
-    P = 10*np.eye(3)
+    P = 100*np.eye(3)
     xs = np.array(state_initial).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
-    u0 = [0, 0]
     nmpc = FMPC(H, l)
     tf = 10
     dt = tf/N
