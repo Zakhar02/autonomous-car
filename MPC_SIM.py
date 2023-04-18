@@ -24,7 +24,7 @@ def plot_car(i, w, l, xs, us, state, n):
     vphi = R.T@vv
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.plot(xs[:, 0], xs[:, 1], label="NMPC")
+    plt.plot(xs[:, 0], xs[:, 1], label="FMPC")
     plt.plot(state[0, :], state[1, :], label="Flat Output")
     plt.plot(car[0, :] + x, car[1, :] + y, label="Car")
     plt.quiver(*origin, vv[0], vv[1], color="blue", label="$v$")
@@ -45,7 +45,7 @@ def main():
     Q = 60*np.eye(3)
     R = np.array([[1, 0], [0, 10]])
     P = 120*np.eye(3)
-    xs = np.array(state_initial).reshape(1, 3)
+    xs = np.array([1, 1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     nmpc = FMPC(H, l)
     tf = 10
