@@ -54,8 +54,8 @@ def main():
     time1 = time.time()
     for i in range(N):
         _, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
-                             tf*H/N, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
-        vi, phii = [CubicSpline([0, dt], [us[-1][i], u.full()[i, 0]])
+                             dt*H, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
+        vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
             us = np.vstack((us, u_))
