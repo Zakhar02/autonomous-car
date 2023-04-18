@@ -22,9 +22,11 @@ def plot_car(i, w, l, xs, us, state, n):
     R = np.array([[np.cos(phi), np.sin(phi)],
                  [-np.sin(phi), np.cos(phi)]])
     vphi = R.T@vv
+    plt.xlim(state[0, 0] - 2, state[0, -1] + 2)
+    plt.ylim(state[1, 0] - 2, state[1, -1] + 2)
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.plot(xs[:, 0], xs[:, 1], label="NMPC")
+    plt.plot(xs[:, 0], xs[:, 1], label="FMPC")
     plt.plot(state[0, :], state[1, :], label="Flat Output")
     plt.plot(car[0, :] + x, car[1, :] + y, label="Car")
     plt.quiver(*origin, vv[0], vv[1], color="blue", label="$v$")
@@ -45,7 +47,7 @@ def main():
     Q = 60*np.eye(3)
     R = np.array([[1, 0], [0, 10]])
     P = 120*np.eye(3)
-    xs = np.array(state_initial).reshape(1, 3)
+    xs = np.array([1, 1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     nmpc = FMPC(H, l)
     tf = 10
@@ -54,8 +56,8 @@ def main():
     time1 = time.time()
     for i in range(N):
         _, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
-                             tf*H/N, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
-        vi, phii = [CubicSpline([0, dt], [us[-1][i], u.full()[i, 0]])
+                             dt*H, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
+        vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
             us = np.vstack((us, u_))
