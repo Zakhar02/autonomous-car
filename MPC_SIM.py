@@ -22,6 +22,8 @@ def plot_car(i, w, l, xs, us, state, n):
     R = np.array([[np.cos(phi), np.sin(phi)],
                  [-np.sin(phi), np.cos(phi)]])
     vphi = R.T@vv
+    plt.xlim(state[0, 0] - 2, state[0, -1] + 2)
+    plt.ylim(state[1, 0] - 2, state[1, -1] + 2)
     plt.xlabel('x')
     plt.ylabel('y')
     plt.plot(xs[:, 0], xs[:, 1], label="FMPC")
