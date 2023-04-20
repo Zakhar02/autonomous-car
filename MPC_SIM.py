@@ -5,6 +5,7 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import time
 from scipy.interpolate import CubicSpline
+from control.CBF import CBF
 
 
 def plot_car(i, w, l, xs, us, state, n):
@@ -34,6 +35,11 @@ def plot_car(i, w, l, xs, us, state, n):
     plt.legend()
 
 
+def interpolate(x, dt, H):
+    return [CubicSpline(np.linspace(0, dt*H, H), x.full()[i, :].ravel())
+            for i in range(x.shape[0])]
+
+
 def main():
     H = 5
     N = 100
@@ -49,16 +55,19 @@ def main():
     P = 120*np.eye(3)
     xs = np.array([1, 1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
+    n = 5
     nmpc = FMPC(H, l)
+    # cbf = CBF(n, l)
     tf = 10
     dt = tf/N
-    n = 5
     time1 = time.time()
     for i in range(N):
-        _, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
+        x, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
                              dt*H, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
-        vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
-                    for i in range(u.shape[0])]
+        vi, phii = interpolate(u, dt, H)
+        du = [vi.derivative(), phii.derivative()]
+        xi, yi, thetai = interpolate(x, dt, H+1)
+        dx = [xi.derivative(), yi.derivative(), thetai.derivative()]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
             us = np.vstack((us, u_))
             x_next = nmpc.rk4(xs[-1], us[-1], dt/n)
