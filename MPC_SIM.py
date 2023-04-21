@@ -5,7 +5,7 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import time
 from scipy.interpolate import CubicSpline
-from control.CBF import CBF
+from control.CBF_Test import CBF_Test
 
 
 def plot_car(i, w, l, xs, us, state, n):
@@ -57,19 +57,26 @@ def main():
     us = np.array([0, 0]).reshape(1, 2)
     n = 5
     nmpc = FMPC(H, l)
-    # cbf = CBF(n, l)
+    cbf = CBF_Test()
     tf = 10
     dt = tf/N
+    d = 1
+    a = .5
     time1 = time.time()
     for i in range(N):
         x, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
                              dt*H, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
         vi, phii = interpolate(u, dt, H)
-        du = [vi.derivative(), phii.derivative()]
         xi, yi, thetai = interpolate(x, dt, H+1)
-        dx = [xi.derivative(), yi.derivative(), thetai.derivative()]
-        for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
-            us = np.vstack((us, u_))
+        dxi, dyi, dthetai = [
+            xi.derivative(), yi.derivative(), thetai.derivative()]
+        i = 0
+        for i in np.linspace(0, dt, n):
+            u_ = [vi(i), phii(i)]
+            x_ = [xi(i), yi(i), thetai(i)]
+            dx_ = [dxi(i), dyi(i), dthetai(i)]
+            u_safe = cbf.solve([vi(i)], xs[-1], np.array([10, 0]).T, a, d)
+            us = np.vstack((us, np.array([u_safe, u_[1].ravel()]).T.ravel()))
             x_next = nmpc.rk4(xs[-1], us[-1], dt/n)
             xs = np.vstack((xs, x_next.T))
     time1 -= time.time()
