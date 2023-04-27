@@ -9,8 +9,8 @@ class FMPC:
         x = opti.variable(3, N+1)
         u = opti.variable(2, N)
         x_ref = opti.parameter(3, N+1)
+        u_ref = opti.parameter(2, N)
         x0 = opti.parameter(3)
-        u0 = opti.parameter(2)
         Q = opti.parameter(3, 3)
         R = opti.parameter(2, 2)
         P = opti.parameter(3, 3)
@@ -23,8 +23,8 @@ class FMPC:
         cost = (x[:, -1] - x_ref[:, -1]).T@P@(x[:, -1] - x_ref[:, -1])
         for i in range(N):
             opti.subject_to(x[:, i+1] == self.rk4(x[:, i], u[:, i], dt))
-            cost += (x[:, i] - x_ref[:, i]).T@Q@(x[:, i] -
-                                                 x_ref[:, i])*dt + u[:, i].T@R@u[:, i]*dt
+            cost += (x[:, i] - x_ref[:, i]).T@Q@(x[:, i] - x_ref[:, i]) * \
+                dt + (u[:, i] - u_ref[:, i]).T@R@(u[:, i] - u_ref[:, i])*dt
             opti.subject_to(opti.bounded(-phi_max, u[1, i], phi_max))
             opti.subject_to(opti.bounded(-v_max, u[0, i], v_max))
             if i == 0:
@@ -35,7 +35,6 @@ class FMPC:
                             u[1, i] - u[1, i-1], dphi_max*dt))
         opti.minimize(cost)
         opti.subject_to(x[:, 0] == x0)
-        # opti.subject_to(u[:, 0] == u0)
         options = {
             "print_level": 0
         }
@@ -48,7 +47,7 @@ class FMPC:
         }
         opti.solver('ipopt', coptions, options)
         self.nmpc = opti.to_function(
-            "nmpc", [x0, x_ref, tf, u0, Q, R, P, v_max, phi_max, acc_max, dphi_max], [x, u])
+            "nmpc", [x0, x_ref, tf, u_ref, Q, R, P, v_max, phi_max, acc_max, dphi_max], [x, u])
 
     def rk4(self, x, u, dt):
         k1 = self.f(x, u)

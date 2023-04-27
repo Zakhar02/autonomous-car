@@ -40,12 +40,12 @@ def main():
     l = 1
     state_initial = [0, 0, 0]
     state_final = [30, 30, np.pi/2]
-    df = DifferentialFlatness(N+1, l)
-    state, _ = df.build_trajectory(state_initial, state_final, 100)
+    df = DifferentialFlatness(l)
+    state, _ = df.build_trajectory(state_initial, state_final, N, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
     Q = 60*np.eye(3)
-    R = np.array([[1, 0], [0, 10]])
+    R = np.array([[1, 0], [0, 1]])
     P = 120*np.eye(3)
     xs = np.array([1, 1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
@@ -55,8 +55,9 @@ def main():
     n = 5
     time1 = time.time()
     for i in range(N):
-        _, u = nmpc.solver()(xs[-1], state[:, i:i+H+1],
-                             dt*H, np.zeros(2), Q, R, P, 30, np.pi/4, 3, 1)
+        x_ref, u_ref = df.build_trajectory(xs[-1], state[:, i+H+1], H+1)
+        _, u = nmpc.solver()(xs[-1], x_ref,
+                             dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/4, 3, 1)
         vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
