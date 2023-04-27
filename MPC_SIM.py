@@ -40,8 +40,8 @@ def main():
     l = 1
     state_initial = [0, 0, 0]
     state_final = [30, 30, np.pi/2]
-    df = DifferentialFlatness(N+1, l)
-    state, _ = df.build_trajectory(state_initial, state_final, 100)
+    df = DifferentialFlatness(l)
+    state, _ = df.build_trajectory(state_initial, state_final, N+1, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
     Q = 60*np.eye(3)
