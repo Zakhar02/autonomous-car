@@ -18,15 +18,19 @@ class FMPC:
         phi_max = opti.parameter()
         acc_max = opti.parameter()
         dphi_max = opti.parameter()
+        r = opti.parameter(1, 2)
+        d = opti.parameter()
         self.f = Function('f', [x, u], [vertcat(
             u[0] * cos(x[2]), u[0] * sin(x[2]), (u[0]/l) * tan(u[1]))])
         cost = (x[:, -1] - x_ref[:, -1]).T@P@(x[:, -1] - x_ref[:, -1])
+        opti.subject_to((x[:2, -1] - r.T).T@(x[:2, -1] - r.T) > d**2)
         for i in range(N):
             opti.subject_to(x[:, i+1] == self.rk4(x[:, i], u[:, i], dt))
             cost += (x[:, i] - x_ref[:, i]).T@Q@(x[:, i] - x_ref[:, i]) * \
                 dt + (u[:, i] - u_ref[:, i]).T@R@(u[:, i] - u_ref[:, i])*dt
             opti.subject_to(opti.bounded(-phi_max, u[1, i], phi_max))
             opti.subject_to(opti.bounded(-v_max, u[0, i], v_max))
+            opti.subject_to((x[:2, i] - r.T).T@(x[:2, i] - r.T) > d**2)
             if i == 0:
                 continue
             opti.subject_to(
@@ -47,7 +51,7 @@ class FMPC:
         }
         opti.solver('ipopt', coptions, options)
         self.nmpc = opti.to_function(
-            "nmpc", [x0, x_ref, tf, u_ref, Q, R, P, v_max, phi_max, acc_max, dphi_max], [x, u])
+            "nmpc", [x0, x_ref, tf, u_ref, Q, R, P, v_max, phi_max, acc_max, dphi_max, r, d], [x, u])
 
     def rk4(self, x, u, dt):
         k1 = self.f(x, u)

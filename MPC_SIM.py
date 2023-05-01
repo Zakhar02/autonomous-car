@@ -44,7 +44,7 @@ def main():
     state, _ = df.build_trajectory(state_initial, state_final, N, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
-    Q = 60*np.eye(3)
+    Q = 100*np.eye(3)
     R = np.array([[1, 0], [0, 1]])
     P = 120*np.eye(3)
     xs = np.array([1, 1, 0]).reshape(1, 3)
@@ -53,11 +53,12 @@ def main():
     tf = 10
     dt = tf/N
     n = 5
+    r = np.array([10, 0])
     time1 = time.time()
     for i in range(N):
         x_ref, u_ref = df.build_trajectory(xs[-1], state[:, i+H+1], H+1)
         _, u = nmpc.solver()(xs[-1], x_ref,
-                             dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/4, 3, 1)
+                             dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/4, 3, 1, r, 1)
         vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
@@ -69,8 +70,8 @@ def main():
     fig = plt.figure()
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state, n))
-    animation.save('mpc.gif', writer='imagemagick', fps=60)
-    # plt.show()
+    # animation.save('mpc.gif', writer='imagemagick', fps=60)
+    plt.show()
 
 
 if __name__ == "__main__":
