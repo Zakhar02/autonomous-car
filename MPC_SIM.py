@@ -22,8 +22,8 @@ def plot_car(i, w, l, xs, us, state, n):
     R = np.array([[np.cos(phi), np.sin(phi)],
                  [-np.sin(phi), np.cos(phi)]])
     vphi = R.T@vv
-    plt.xlim(state[0, 0] - 2, state[0, -1] + 2)
-    plt.ylim(state[1, 0] - 2, state[1, -1] + 2)
+    plt.xlim(np.min(state[0, :]) - 2, np.max(state[0, :]) + 2)
+    plt.ylim(np.min(state[1, :]) - 2, np.max(state[1, :]) + 2)
     plt.xlabel('x')
     plt.ylabel('y')
     plt.plot(xs[:, 0], xs[:, 1], label="FMPC")
@@ -32,6 +32,7 @@ def plot_car(i, w, l, xs, us, state, n):
     plt.quiver(*origin, vv[0], vv[1], color="blue", label="$v$")
     plt.quiver(*origin, vphi[0], vphi[1], color="red", label="$\phi$")
     plt.legend()
+    plt.grid()
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
     N = 100
     l = 1
     state_initial = [0, 0, 0]
-    state_final = [30, 30, np.pi/2]
+    state_final = [30, 30, np.pi]
     df = DifferentialFlatness(l)
     state, _ = df.build_trajectory(state_initial, state_final, N, 100)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
