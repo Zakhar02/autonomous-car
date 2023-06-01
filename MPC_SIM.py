@@ -44,7 +44,7 @@ def main():
     print(f"MPC calculation time is {-time1} seconds")
     fig = plt.figure()
     animation = FuncAnimation(
-        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state, n, r, rad))
+        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state.T, n, r, rad))
     animation.save('mpc.gif', writer='imagemagick', fps=60)
     # plt.show()
 
