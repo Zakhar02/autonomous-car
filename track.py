@@ -15,33 +15,32 @@ def main():
     ks = [5, 5, 5, 5, 20, 10, 2, 23]
     df = DifferentialFlatness(l)
     state_initial = landmarks[0]
-    H = 3
+    H = 5
     states = np.empty((1, 3))
-    u_ref = np.empty((1, 2))
     for landmark, k in zip(landmarks[1:], ks):
-        state, u = df.build_trajectory(state_initial, landmark, 100, k)
+        state, _ = df.build_trajectory(state_initial, landmark, 100, k)
         states = np.vstack((states, state.T))
         state_initial = landmark
-        u_ref = np.vstack((u_ref, u.T))
     states = states[1:]
     N = states.shape[0]
     state_f = np.tile(states[-1], (H+1, 1))
-    u_f = np.tile(u_ref[-1], (H, 1))
     states = np.vstack((states, state_f))
-    u_ref = np.vstack((u_ref, u_f))
     nmpc = FMPC(H, l)
-    Q = 40*np.eye(3)
+    tf = 12
+    dt = tf/N
+    Q = 2.3/dt*np.eye(3)
     R = np.array([[1, 0], [0, 1]])
-    P = 110*np.eye(3)
+    P = 6.51*np.eye(3)
     xs = np.array([0, -1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
-    tf = 7
-    dt = tf/N
     n = 5
+    r = np.array([6, 0])
+    rad = .5
     time1 = time.time()
     for i in range(N):
-        _, u = nmpc.solver()(xs[-1], states[i:i+H+1].T,
-                             dt*H, u_ref[i:i+H].T, Q, R, P, 30, np.pi/2.005, 3, 1)
+        x_ref, u_ref = df.build_trajectory(xs[-1], states[i+H+1], H+1)
+        _, u = nmpc.solver()(xs[-1], x_ref,
+                             dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/2.005, 3, 1, r, rad)
         vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
@@ -52,8 +51,8 @@ def main():
     print(f"MPC calculation time is {-time1} seconds")
     fig = plt.figure()
     animation = FuncAnimation(
-        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n))
-    animation.save('track.gif', writer='imagemagick', fps=60)
+        fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n, r, rad))
+    animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
     # plt.show()
 
 
