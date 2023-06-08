@@ -25,7 +25,7 @@ def main():
     N = states.shape[0]
     state_f = np.tile(states[-1], (H+1, 1))
     states = np.vstack((states, state_f))
-    nmpc = FMPC(H, l)
+    nmpc = FMPC(H, l, 0)
     tf = 12
     dt = tf/N
     Q = 2/dt*np.eye(3)
@@ -36,11 +36,13 @@ def main():
     n = 5
     r = np.array([6, 0])
     rad = 0
-    time1 = time.time()
+    ts = []
     for i in range(N):
+        time1 = time.time()
         x_ref, u_ref = df.build_trajectory(xs[-1], states[i+H+1], H+1)
         _, u = nmpc.solver()(xs[-1], x_ref,
                              dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/2.005, 3, 1, r, rad)
+        ts.append(time.time()-time1)
         vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
@@ -53,6 +55,8 @@ def main():
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n, r, rad))
     # animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
+    plt.show()
+    plt.plot(ts)
     plt.show()
 
 

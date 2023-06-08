@@ -26,7 +26,8 @@ def plot_car(i, w, l, xs, us, state, n, r, rad):
     plt.plot(car[0, :] + x, car[1, :] + y, label="Car")
     plt.quiver(*origin, vv[0], vv[1], color="blue", label="$v$")
     plt.quiver(*origin, vphi[0], vphi[1], color="red", label="$\phi$")
-    circ = plt.Circle(r, rad, color='g')
-    plt.gca().add_patch(circ)
+    for r_, rad_ in zip(r, rad):
+        circ = plt.Circle(r_, rad_, color='g')
+        plt.gca().add_patch(circ)
     plt.legend()
     plt.grid()

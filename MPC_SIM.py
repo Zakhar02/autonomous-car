@@ -9,7 +9,7 @@ from plant.plot_car import plot_car
 
 
 def main():
-    H = 10
+    H = 5
     N = 100
     l = 1
     state_initial = [0, 0, 0]
@@ -23,16 +23,16 @@ def main():
     tf = 10
     dt = tf/N
     n = 5
-    r = np.array([5, 0])
-    rad = 2
-    time1 = time.time()
-    nmpc = FMPC(H, l, 0)
+    r = np.array([[5, 0], [17, 10], [25, 30]])
+    rad = np.array([1, 1, 1])
+    nmpc = FMPC(H, l, 0, r.shape[0])
     qxy = 1.2
-    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1.1*N/tf*1]])
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1.8*N/tf*1]])
     R = np.array([[1, 0], [0, N/tf*1]])
     pxy = 3
     P = np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1.7]])
     err = []
+    time1 = time.time()
     for i in range(N):
         x_ref, u_ref = df.build_trajectory(xs[-1], state[:, i+H+1], H+1)
         _, u = nmpc.solver()(xs[-1], x_ref,

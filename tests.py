@@ -5,7 +5,7 @@ from control.MPC import FMPC
 import time
 
 
-v_max = 30
+v_max = 10
 phi_max = np.pi/3
 
 
@@ -69,15 +69,15 @@ def plot_opti(state_initial, state_final, N, H, l, r, k=100):
     R = np.array([[1, 0], [0, N/tf*1]])
     P = 10*np.eye(3)
     centre, rad = r
-    nmpc = FMPC(N, l, state)
+    nmpc = FMPC(N, l, state, rad.shape[0])
     time1 = time.time()
     x_ref, u_ref = nmpc.solver()(state_initial, state,
                                  tf, np.array([0, 0]), Q, R, P, v_max, phi_max, 3, 1, centre, rad)
     time1 -= time.time()
     print(-time1)
-    return
-    if rad > 0:
-        plt.gca().add_patch(plt.Circle(centre, rad, color='g'))
+    for centre_, rad_ in zip(centre, rad):
+        if rad_ > 0:
+            plt.gca().add_patch(plt.Circle(centre_, rad_, color='g'))
     plot_trajectory(x_ref.full(), u_ref.full())
     return
 
@@ -91,8 +91,9 @@ def main():
     H = 5
     k = 35
     # plot_flatness(state_initial, state_final, N, l, k)
-    r = (np.array([2, 0]), 0)
-    plot_opti(state_initial, state_final, N, H, l, r, k)
+    r = np.array([[5, 0], [9, 10], [6, 16]])
+    rad = np.array([1, .7, 1])
+    plot_opti(state_initial, state_final, N, H, l, (r, rad), k)
 
 
 if __name__ == "__main__":
