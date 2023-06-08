@@ -28,14 +28,14 @@ def main():
     nmpc = FMPC(H, l)
     tf = 12
     dt = tf/N
-    Q = 2.3/dt*np.eye(3)
-    R = np.array([[1, 0], [0, 1]])
-    P = 6.51*np.eye(3)
+    Q = 2/dt*np.eye(3)
+    R = np.array([[1, 0], [0, 1/dt]])
+    P = 3*np.eye(3)
     xs = np.array([0, -1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     n = 5
     r = np.array([6, 0])
-    rad = .5
+    rad = 0
     time1 = time.time()
     for i in range(N):
         x_ref, u_ref = df.build_trajectory(xs[-1], states[i+H+1], H+1)
@@ -52,8 +52,8 @@ def main():
     fig = plt.figure()
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n, r, rad))
-    animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
-    # plt.show()
+    # animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
+    plt.show()
 
 
 if __name__ == "__main__":
