@@ -13,25 +13,25 @@ def main():
     N = 100
     l = 1
     state_initial = [0, 0, 0]
-    # state_final = [15, 30, np.pi+np.pi/4]
-    state_final = [30, 30, 0]
+    state_final = [0, 25, np.pi]
+    # state_final = [30, 30, 0]
     df = DifferentialFlatness(l)
-    state, _ = df.build_trajectory(state_initial, state_final, N, 75)
+    state, _ = df.build_trajectory(state_initial, state_final, N, 35)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
     xs = np.array([0, 0, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
-    tf = 17
+    tf = 20
     dt = tf/N
     n = 5
-    r = np.array([[5, 0], [15, 10], [25, 30]])
-    rad = np.array([1, 1, 1])
+    r = np.array([[4, 0], [9, 10], [6, 22]])
+    rad = np.array([1, .5, .5])
     nmpc = FMPC(H, l, 0, r.shape[0])
-    qxy = 2
-    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 2]])
-    R = np.array([[5, 0], [0, 2.5]])
+    qxy = 1.4
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1.7]])
+    R = np.array([[1.5, 0], [0, 1.5]])
     pxy = 1
-    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1]])
+    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1.5]])
     err = []
     time1 = time.time()
     for i in range(N):
@@ -50,7 +50,7 @@ def main():
     fig = plt.figure()
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state.T, n, r, rad))
-    animation.save('mpc.gif', writer='imagemagick', fps=60)
+    animation.save('obstacle.gif', writer='imagemagick', fps=60)
     # plt.show()
     return
     fig, axes = plt.subplots(1, 2, sharex=True, sharey=False)

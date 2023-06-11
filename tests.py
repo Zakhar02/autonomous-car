@@ -91,7 +91,7 @@ def main():
     H = 5
     k = 35
     # plot_flatness(state_initial, state_final, N, l, k)
-    r = np.array([[5, 0], [9, 10], [6, 16]])
+    r = np.array([[4, 0], [9, 10], [6, 16]])
     rad = np.array([1, .7, 1])
     plot_opti(state_initial, state_final, N, H, l, (r, rad), k)
 
