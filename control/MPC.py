@@ -24,7 +24,7 @@ class FMPC:
             u[0] * cos(x[2]), u[0] * sin(x[2]), (u[0]/l) * tan(u[1]))])
         cost = (x[:, -1] - x_ref[:, -1]).T@P@(x[:, -1] - x_ref[:, -1])
         for i in range(r_n):
-                opti.subject_to((x[:2, -1] - r[i].T).T@(x[:2, -1] - r[i].T) > d[i]**2)
+                opti.subject_to((x[:2, -1] - r[i, :].T).T@(x[:2, -1] - r[i, :].T) > d[i]**2)
         # opti.set_initial(x, x_init)
         for i in range(N):
             opti.subject_to(x[:, i+1] == self.rk4(x[:, i], u[:, i], dt))
