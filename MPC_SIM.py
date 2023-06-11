@@ -27,11 +27,11 @@ def main():
     r = np.array([[5, 0], [15, 10], [25, 30]])
     rad = np.array([1, 1, 1])
     nmpc = FMPC(H, l, 0, r.shape[0])
-    qxy = 1
-    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1]])
+    qxy = 2.8
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 3]])
     R = np.array([[1, 0], [0, 1]])
     pxy = 1
-    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1]])
+    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 2]])
     err = []
     time1 = time.time()
     for i in range(N):
