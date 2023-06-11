@@ -13,24 +13,25 @@ def main():
     N = 100
     l = 1
     state_initial = [0, 0, 0]
-    state_final = [15, 30, np.pi+np.pi/4]
+    # state_final = [15, 30, np.pi+np.pi/4]
+    state_final = [30, 30, 0]
     df = DifferentialFlatness(l)
     state, _ = df.build_trajectory(state_initial, state_final, N, 75)
     state_f = np.tile(state[:, -1], (H+1, 1)).T
     state = np.vstack((state.T, state_f.T)).T
     xs = np.array([0, 0, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
-    tf = 10
+    tf = 15
     dt = tf/N
     n = 5
-    r = np.array([[5, 0], [17, 10], [25, 30]])
+    r = np.array([[5, 0], [15, 10], [25, 30]])
     rad = np.array([1, 1, 1])
     nmpc = FMPC(H, l, 0, r.shape[0])
-    qxy = 1.2
-    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1.8*N/tf*1]])
-    R = np.array([[1, 0], [0, N/tf*1]])
-    pxy = 3
-    P = np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1.7]])
+    qxy = 1
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 1]])
+    R = np.array([[1, 0], [0, 1]])
+    pxy = 1
+    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 1]])
     err = []
     time1 = time.time()
     for i in range(N):
@@ -51,7 +52,7 @@ def main():
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, state.T, n, r, rad))
     # animation.save('mpc.gif', writer='imagemagick', fps=60)
     plt.show()
-
+    return
     fig, axes = plt.subplots(1, 2, sharex=True, sharey=False)
     err = np.array(err)
     axes[0].plot(err[:, 0], label="x")
