@@ -27,16 +27,16 @@ def main():
     states = np.vstack((states, state_f))
     tf = 25
     dt = tf/N
-    qxy = 2.8
-    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 3]])
-    R = np.array([[1, 0], [0, 1]])
-    pxy = 1
-    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 2]])
+    qxy = 3.5
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 3.2]])
+    R = np.array([[1.5, 0], [0, 1.26]])
+    pxy = 3.6
+    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 3.2]])
     xs = np.array([0, -1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     n = 5
-    r = np.array([[5, 0], [10, 2], [5, 10], [-5, 8]])
-    rad = np.array([.5, .5, .5, .5])
+    r = np.array([[7, 0], [11, 2], [5, 11], [-4, 9]])
+    rad = np.array([.5, 1, 1, 1])
     nmpc = FMPC(H, l, 0, r.shape[0])
     ts = []
     for i in range(N):
@@ -55,8 +55,8 @@ def main():
     fig = plt.figure()
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n, r, rad))
-    # animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
-    plt.show()
+    animation.save('track_obstacles.gif', writer='imagemagick', fps=60)
+    # plt.show()
     return
     plt.plot(ts)
     plt.show()
