@@ -25,35 +25,41 @@ def main():
     N = states.shape[0]
     state_f = np.tile(states[-1], (H+1, 1))
     states = np.vstack((states, state_f))
-    nmpc = FMPC(H, l)
-    tf = 12
+    tf = 25
     dt = tf/N
-    Q = 2.3/dt*np.eye(3)
-    R = np.array([[1, 0], [0, 1]])
-    P = 6.51*np.eye(3)
+    qxy = 3.5
+    Q = np.array([[qxy, 0, 0], [0, qxy, 0], [0, 0, 3.2]])
+    R = np.array([[1.5, 0], [0, 1.26]])
+    pxy = 3.6
+    P = tf/H*np.array([[pxy, 0, 0], [0, pxy, 0], [0, 0, 3.2]])
     xs = np.array([0, -1, 0]).reshape(1, 3)
     us = np.array([0, 0]).reshape(1, 2)
     n = 5
-    r = np.array([6, 0])
-    rad = .5
-    time1 = time.time()
+    r = np.array([[7, 0], [11, 2], [5, 11], [-4, 9]])
+    rad = np.array([.5, 1, 1, 1])
+    nmpc = FMPC(H, l, 0, r.shape[0])
+    ts = []
     for i in range(N):
+        time1 = time.time()
         x_ref, u_ref = df.build_trajectory(xs[-1], states[i+H+1], H+1)
         _, u = nmpc.solver()(xs[-1], x_ref,
                              dt*H, u_ref[:, :-1], Q, R, P, 30, np.pi/2.005, 3, 1, r, rad)
+        ts.append(time.time()-time1)
         vi, phii = [CubicSpline(np.linspace(0, dt*H, H), u.full()[i, :].ravel())
                     for i in range(u.shape[0])]
         for u_ in zip(vi(np.linspace(0, dt, n)), phii(np.linspace(0, dt, n))):
             us = np.vstack((us, u_))
             x_next = nmpc.rk4(xs[-1], us[-1], dt/n)
             xs = np.vstack((xs, x_next.T))
-    time1 -= time.time()
-    print(f"MPC calculation time is {-time1} seconds")
+    print(f"MPC calculation time is {np.mean(ts)} seconds")
     fig = plt.figure()
     animation = FuncAnimation(
         fig, plot_car, frames=N+1, fargs=(l/2, l, xs, us, states, n, r, rad))
-    animation.save('track_obstacle.gif', writer='imagemagick', fps=60)
+    animation.save('track_obstacles.gif', writer='imagemagick', fps=60)
     # plt.show()
+    return
+    plt.plot(ts)
+    plt.show()
 
 
 if __name__ == "__main__":
