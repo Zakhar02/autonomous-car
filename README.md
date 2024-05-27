@@ -16,8 +16,7 @@ This section provides a brief introduction to the project conducted as part of t
 - [Problem Statement](#problem-statement)
 - [Results](#results)
 - [Run the Project](#run-the-project)
-- [Other Section](#other-section)
-- [Bibliography](#bibliography)
+- [References](#references)
 
 ---
 
