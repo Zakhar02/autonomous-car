@@ -24,7 +24,9 @@ def main():
     tf = 20
     dt = tf/N
     n = 5
+    # Positions of obstacles
     r = np.array([[4, 0], [9, 10], [6, 22]])
+    # Obstacles' radii
     rad = np.array([1, .5, .5])
     nmpc = FMPC(H, l, 0, r.shape[0])
     qxy = 1.4
