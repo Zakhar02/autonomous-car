@@ -5,7 +5,7 @@ This section provides a brief introduction to the project conducted as part of t
 
 - Course: Advanced Control Methods, Skoltech, 2024
 - Team Members: Zakhar Yagudin, Artem Myshlyaev, Aibek Akhmetkazy
-- Final Presentation: [Link to Presentation]
+- Final Presentation: [Link](https://docs.google.com/presentation/d/1RogIyLL9akmBrp9HfEtjvFrLj14CR2fOCOVqg8V9cvE/edit#slide=id.g2e06f72f8fc_2_9)
 
 ![](structure.png)
 ---
